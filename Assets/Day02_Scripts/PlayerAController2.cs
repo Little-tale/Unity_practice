@@ -16,6 +16,9 @@ public class PlayerAController2 : MonoBehaviour
 
     //InputAction moveAction; // 새로운 방식 
 
+    private float yRotation = 0;
+    private float xRotation = 0;
+
 
     private void Awake()
     {
@@ -78,16 +81,29 @@ public class PlayerAController2 : MonoBehaviour
         //transform.Translate(moveNormalized);
 
 
-        Vector3 mov = new Vector3(horizontal, 0, vertical);
-        Vector3 movNormalized = mov * speed;
-        Vector3 withJump = new Vector3(movNormalized.x, rb.linearVelocity.y, movNormalized.z);
-        rb.linearVelocity = withJump;
+        Vector3 mov = new Vector3(horizontal, 0, vertical); // 로컬 좌표
+
+        Vector3 worldPos = transform.TransformDirection(mov); // to World
+        transform.Translate(worldPos * speed * Time.deltaTime, Space.World);
+
+        //Vector3 movNormalized = mov * speed;
+        //Vector3 withJump = new Vector3(movNormalized.x, rb.linearVelocity.y, movNormalized.z);
+        //rb.linearVelocity = withJump;
 
         if (Input.GetButtonDown("Jump") && isGround)
         {
             Debug.Log("Jump");
             Jump();
         }
+
+
+        float mouseX = Input.GetAxisRaw("Mouse X") * Time.deltaTime * 100;
+        float mouseY = Input.GetAxisRaw("Mouse Y") * Time.deltaTime * 100;
+        yRotation += mouseX;
+        xRotation -= mouseY;
+        float c_X = Mathf.Clamp(xRotation, -90, 90);
+
+        transform.rotation = Quaternion.Euler(c_X, yRotation, 0);
     }
 
     private void OnCollisionEnter(Collision collision)
