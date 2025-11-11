@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using Unity.AI.Navigation.Editor;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class EnemyManager : MonoBehaviour
 {
@@ -11,12 +13,21 @@ public class EnemyManager : MonoBehaviour
     [SerializeField] GameObject enemyPrefab;
     private List<EnemyController2> enemyControllers = new List<EnemyController2>();
 
+    PlayerAController2 playerAController;
+    NavMeshAgent agent;
+
     public List<EnemyController2> Enemies
     {
         get
         {
             return enemyControllers;
         }
+    }
+
+    private void Awake()
+    {
+        playerAController = FindAnyObjectByType<PlayerAController2>();
+        agent = GetComponent<NavMeshAgent>();
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -70,7 +81,7 @@ public class EnemyManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        agent.SetDestination(playerAController.transform.position);
     }
 
     //public void AttackAll() 
