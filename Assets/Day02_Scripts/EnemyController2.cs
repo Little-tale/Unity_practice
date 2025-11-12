@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class EnemyController2 : MonoBehaviour
 {
@@ -125,11 +126,19 @@ public class EnemyController2 : MonoBehaviour
         //{
         //    isFinished = true;
         //}
-            
+
         //if (isFinished)
         //{
         //    transform.Translate(0, 0, 1);
         //}
+
+        foreach (Collider collider in colliders)
+        {
+            if (collider.gameObject.tag == "Plater")
+            {
+                collider.GetComponent<PlayerAController2>().Attack();
+            }
+        }
     }
 
     public void Attack()

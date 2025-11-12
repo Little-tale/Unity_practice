@@ -11,6 +11,7 @@ public class PlayerAController2 : MonoBehaviour
 
     [SerializeField] private float speed = 10f;
     Rigidbody rb; // Cache
+    CameraShake cameraShake;  // Cache
 
     private bool isGround = false;
 
@@ -24,6 +25,7 @@ public class PlayerAController2 : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         enemanager = FindAnyObjectByType<EnemyManager>();
+        cameraShake = FindAnyObjectByType<CameraShake>();
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -139,5 +141,11 @@ public class PlayerAController2 : MonoBehaviour
     public void Warning()
     {
         Debug.Log("Player Warning");
+    }
+
+    public void Attack()
+    {
+        Debug.Log("Player Attack");
+        cameraShake.Shake(0.1f, 0.05f);
     }
 }
