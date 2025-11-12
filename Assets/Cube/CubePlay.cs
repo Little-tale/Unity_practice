@@ -3,43 +3,68 @@ using UnityEngine;
 
 public class CubePlay : MonoBehaviour
 {
-    // Cashe
+    // Cashes
     private Animator animatior;
+    private SoundManager cubeSoundManager;
+
+    // MARK: Members
     private bool isAttack = false;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         animatior = GetComponent<Animator>();
+        cubeSoundManager = FindAnyObjectByType<SoundManager>();
+
+        cubeSoundManager.PlaySound(2, false);
+
+        Invoke("FadeOutSound", 3f);
+    }
+
+    private void FadeOutSound()
+    {
+        cubeSoundManager.FadeOut(2);
     }
 
     // Update is called once per frame
     void Update()
     {
-        float horizontal = Input.GetAxis("Horizontal");
-
-        if (horizontal > 0f && !isAttack)
-        {
-            //animatior.SetBool("IsMove", true);
-            animatior.Play("Move");
-        } 
-        else if (!isAttack)
-        {
-            //animatior.SetBool("IsMove", false);
-            animatior.Play("CubeIdle");
-        }
-
+        MoveState();
+        IdleState();
         animateAttack();
     }
 
+    private void MoveState()
+    {
+        float horizontal = Input.GetAxis("Horizontal");
+        if (Mathf.Abs(horizontal) > Mathf.Epsilon && !isAttack)
+        {
+            //animatior.SetBool("IsMove", true);
+            animatior.Play("Move");
+            cubeSoundManager.PlaySound(0, false);
+        }
+    }
+
+    private void IdleState()
+    {
+        if (!isAttack)
+        {
+            //animatior.SetBool("IsMove", false);
+            animatior.Play("CubeIdle");
+            //cubeSoundManager.PlaySound(0);
+
+        }
+    }
+    
     private void animateAttack()
     {
-        if (Input.GetKeyDown(KeyCode.A))
+        if (Input.GetKeyDown(KeyCode.Z))
         {
             //animatior.SetTrigger("Attack");
             isAttack = true;
             animatior.Play("Atack");
             StartCoroutine(C_AttackStateFinish());
+            cubeSoundManager.PlaySound(1, true);
         }
     }
 
