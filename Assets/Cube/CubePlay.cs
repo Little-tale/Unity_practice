@@ -6,6 +6,10 @@ public class CubePlay : MonoBehaviour
     // Cashes
     private Animator animatior;
     private SoundManager cubeSoundManager;
+    private EffectManager effectManager;
+     
+    //[SerializeField] private GameObject effectPrefab;
+    [SerializeField] private Transform effectPos;
 
     // MARK: Members
     private bool isAttack = false;
@@ -16,9 +20,15 @@ public class CubePlay : MonoBehaviour
         animatior = GetComponent<Animator>();
         cubeSoundManager = FindAnyObjectByType<SoundManager>();
 
-        cubeSoundManager.PlaySound(2, false);
+        //cubeSoundManager.PlaySound(2, false);
 
-        Invoke("FadeOutSound", 3f);
+        //Invoke("FadeOutSound", 3f);
+
+        //Instantiate(effectPrefab, effectPos); // 부모를 지정할 수 있음
+
+        effectManager = FindAnyObjectByType<EffectManager>();
+
+        effectManager.PlayEffect(0, effectPos);
     }
 
     private void FadeOutSound()
