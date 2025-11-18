@@ -1,86 +1,170 @@
 using System.Collections;
 using UnityEngine;
 
+public enum CUBE_PLAY_STATE_TYPE
+{
+    idle,
+    move,
+    attack,
+}
+
 public class CubePlay : MonoBehaviour
 {
-    // Cashes
-    private Animator animatior;
-    private SoundManager cubeSoundManager;
-    private EffectManager effectManager;
-     
-    //[SerializeField] private GameObject effectPrefab;
+    private Animator animator; // cache
+    private SoundManager soundManager; // cache
+    private EffectManager effectManager; // cache
+    //[SerializeField] private GameObject effectPrefab; 
     [SerializeField] private Transform effectPos;
-
-    // MARK: Members
     private bool isAttack = false;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    private CUBE_PLAY_STATE_TYPE currentState = CUBE_PLAY_STATE_TYPE.idle;
+
+    public bool IsMove
+    {
+        get
+        {
+            return currentState != CUBE_PLAY_STATE_TYPE.attack;
+        }
+    }
+
+    public bool IsIdle
+    {
+        get
+        {
+            return currentState != CUBE_PLAY_STATE_TYPE.attack;
+        }
+    }
+
+    public bool IsDuplacationState
+    {
+        get
+        {
+            return currentState == CUBE_PLAY_STATE_TYPE.attack;
+        }
+    }
+
+
     void Start()
     {
-        animatior = GetComponent<Animator>();
-        cubeSoundManager = FindAnyObjectByType<SoundManager>();
+        animator = GetComponent<Animator>();
+        soundManager = FindAnyObjectByType<SoundManager>();
 
-        //cubeSoundManager.PlaySound(2, false);
-
+        //soundManager.PlaySound(2, false);
         //Invoke("FadeOutSound", 3f);
 
-        //Instantiate(effectPrefab, effectPos); // 부모를 지정할 수 있음
+        //Instantiate(effectPrefab, effectPos);
 
         effectManager = FindAnyObjectByType<EffectManager>();
-
         effectManager.PlayEffect(0, effectPos);
     }
 
     private void FadeOutSound()
     {
-        cubeSoundManager.FadeOut(2);
+        //soundManager.Fadeout(2);
     }
 
-    // Update is called once per frame
     void Update()
     {
-        MoveState();
-        IdleState();
-        animateAttack();
-    }
-
-    private void MoveState()
-    {
         float horizontal = Input.GetAxis("Horizontal");
-        if (Mathf.Abs(horizontal) > Mathf.Epsilon && !isAttack)
+        if (Mathf.Abs(horizontal) > Mathf.Epsilon)
         {
-            //animatior.SetBool("IsMove", true);
-            animatior.Play("Move");
-            cubeSoundManager.PlaySound(0, false);
+            if (IsMove)
+                ChangeState(CUBE_PLAY_STATE_TYPE.move);
         }
-    }
-
-    private void IdleState()
-    {
-        if (!isAttack)
+        else
         {
-            //animatior.SetBool("IsMove", false);
-            animatior.Play("CubeIdle");
-            //cubeSoundManager.PlaySound(0);
-
+            if (IsIdle)
+                ChangeState(CUBE_PLAY_STATE_TYPE.idle);
         }
-    }
-    
-    private void animateAttack()
-    {
+
         if (Input.GetKeyDown(KeyCode.Z))
         {
-            //animatior.SetTrigger("Attack");
-            isAttack = true;
-            animatior.Play("Atack");
-            StartCoroutine(C_AttackStateFinish());
-            cubeSoundManager.PlaySound(1, true);
+            ChangeState(CUBE_PLAY_STATE_TYPE.attack);
         }
+
+        UpdateState();
+    }
+
+    private void UpdateState()
+    {
+        switch (currentState)
+        {
+            case CUBE_PLAY_STATE_TYPE.idle:
+                IdleUpdateState();
+                break;
+            case CUBE_PLAY_STATE_TYPE.move:
+                MoveUpdateState();
+                break;
+            case CUBE_PLAY_STATE_TYPE.attack:
+                AttackUpdateState();
+                break;
+        }
+    }
+
+    public void ChangeState(CUBE_PLAY_STATE_TYPE stateType)
+    {
+        if (!IsDuplacationState)
+        {
+            if (this.currentState == stateType)
+                return;
+        }
+
+        this.currentState = stateType;
+
+        switch (currentState)
+        {
+            case CUBE_PLAY_STATE_TYPE.idle:
+                IdleEnterState();
+                break;
+            case CUBE_PLAY_STATE_TYPE.move:
+                MoveEnterState();
+                break;
+            case CUBE_PLAY_STATE_TYPE.attack:
+                AttackEnterState();
+                break;
+        }
+    }
+
+    private void MoveEnterState()
+    {
+
+    }
+
+    private void MoveUpdateState()
+    {
+        if (IsMove)
+        {
+            animator.Play("Move");
+            soundManager.PlaySound(0, false);
+        }
+    }
+
+    private void IdleEnterState()
+    {
+    }
+
+    private void IdleUpdateState()
+    {
+        if (IsIdle)
+            animator.Play("CubeIdle");
+    }
+
+    private void AttackEnterState()
+    {
+        animator.Play("Atack");
+        soundManager.PlaySound(1, true);
+
+        StartCoroutine(C_AttackStateFinish());
+    }
+
+    private void AttackUpdateState()
+    {
+
     }
 
     private IEnumerator C_AttackStateFinish()
     {
         yield return new WaitForSeconds(1.5f);
-        isAttack = false;
+        ChangeState(CUBE_PLAY_STATE_TYPE.idle);
     }
 }
